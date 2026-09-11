@@ -50,12 +50,17 @@ static const uint8_t s_init_cmds[] = {
 static void I2C_SCL(uint8_t v) { v ? GPIO_SetBits(OLED_SCL_PORT, OLED_SCL_PIN) : GPIO_ResetBits(OLED_SCL_PORT, OLED_SCL_PIN); }
 static void I2C_SDA(uint8_t v) { v ? GPIO_SetBits(OLED_SDA_PORT, OLED_SDA_PIN) : GPIO_ResetBits(OLED_SDA_PORT, OLED_SDA_PIN); }
 
-/* 微秒延时: 用 DWT 内核计数器, 精度高, 不占用定时器 */
+/* 微秒延时: 简单的软件循环(NOP 忙等待), 不用 DWT/SysTick, 兼容所有标准库工程。
+ * 注意: 这是"大约"延时, 受编译优化和主频影响;
+ *       对 SSD1306 的 I2C 时序, 延时"偏长没关系、偏短才出错",
+ *       所以这里系数偏保守, 保证各种主频下都够用。 */
 static void I2C_DelayUs(uint32_t us)
 {
-    uint32_t start = DWT->CYCCNT;
-    uint32_t ticks = us * (SystemCoreClock / 1000000UL);
-    while ((uint32_t)(DWT->CYCCNT - start) < ticks) { }   /* 无符号减法, 自动处理回绕 */
+    uint32_t i;
+    uint32_t loops = us * (SystemCoreClock / 4000000UL);  /* 72MHz 下约 18 次循环 ≈ 1us */
+    for (i = 0; i < loops; i++) {
+        __NOP();
+    }
 }
 
 /* I2C 起始信号: SCL 高电平时把 SDA 拉低 */
@@ -117,6 +122,7 @@ static void OLED_WriteData(uint8_t dat)
 void OLED_Init(void)
 {
     GPIO_InitTypeDef gpio;
+    uint16_t i;
 
     /* 1) 配置 I2C 引脚: 开漏输出 + 内部上拉。
      *    开漏输出在输出 1 时不主动拉高, 靠上拉电阻把线拉高,
@@ -127,16 +133,10 @@ void OLED_Init(void)
     gpio.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(OLED_SCL_PORT, &gpio);
 
-    /* 2) 开 DWT 计数器, 供微秒延时使用 */
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0;
-    DWT->CTRL  |= DWT_CTRL_CYCCNTENA_Msk;
-
-    /* 3) 等芯片上电稳定再初始化 */
+    /* 2) 等芯片上电稳定再初始化 */
     I2C_DelayUs(50000);
 
-    /* 4) 按序列发送初始化命令 */
-    uint16_t i;
+    /* 3) 按序列发送初始化命令 */
     for (i = 0; i < sizeof(s_init_cmds); i++) {
         OLED_WriteCmd(s_init_cmds[i]);
     }
@@ -227,10 +227,16 @@ void OLED_Refresh(void)
 /* ============================================================
  * 图片
  * ============================================================ */
-/* 显示一整屏动画帧: 直接把 1024 字节拷进缓冲区, 最快 */
+/* 显示一整屏动画帧: 帧数据是"列优先"(frame[列*8+页]),
+ * 而显存是"页优先"(OLED_GRAM[页][列]), 两者排列不同, 必须转置拷贝, 不能 memcpy */
 void OLED_ShowFrame(const uint8_t *frame)
 {
-    memcpy(OLED_GRAM, frame, 1024);
+    uint8_t col, page;
+    for (col = 0; col < 128; col++) {
+        for (page = 0; page < 8; page++) {
+            OLED_GRAM[page][col] = frame[col * 8 + page];
+        }
+    }
 }
 
 /* 显示图片的一角。

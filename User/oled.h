@@ -1,4 +1,4 @@
-﻿/* oled.h —— SSD1306 OLED 驱动库的头文件
+/* oled.h —— SSD1306 OLED 驱动库的头文件(标准库版)
  *
  * 使用方法:
  *   1. 把 oled.c / oled.h / font8x8.h 放进你的 Keil 工程
@@ -11,16 +11,17 @@
 #ifndef __OLED_H
 #define __OLED_H
 
-#include "main.h"        /* 让 HAL 库的东西可用(按你工程实际路径调整) */
+#include "stm32f10x.h"
+#include <stdint.h>
 
 /* ===================== 引脚配置(改这里即可换引脚) =====================
  * 你的接线: SCL -> PB6, SDA -> PB7
  * 软件 I2C = 用两个普通 GPIO 模拟 I2C 时序, 不占用片上 I2C 外设
  */
 #define OLED_SCL_PORT   GPIOB
-#define OLED_SCL_PIN    GPIO_PIN_6
+#define OLED_SCL_PIN    GPIO_Pin_6
 #define OLED_SDA_PORT   GPIOB
-#define OLED_SDA_PIN    GPIO_PIN_7
+#define OLED_SDA_PIN    GPIO_Pin_7
 
 /* SSD1306 的 I2C 地址: 绝大多数 0.96 寸模块是 0x3C
  * 屏幕一直不亮时, 试试改成 0x3D(部分模块背面有电阻可换地址) */

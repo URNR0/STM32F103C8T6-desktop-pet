@@ -1,4 +1,4 @@
-﻿/* pet.c —— 宠物动画: 表情 + 待机动画脚本
+/* pet.c —— 宠物动画: 表情 + 待机动画脚本(标准库版)
  *
  * 动画节奏怎么改:
  *   改下面 anim_idle[] 表里的时长(单位毫秒)和帧顺序即可,
@@ -12,7 +12,7 @@
 #include "pet.h"
 #include "oled.h"
 #include "pet_frames.h"
-#include "main.h"          /* HAL_GetTick */
+#include "delay.h"          /* 标准库下自己提供 SysTick_GetTick */
 
 /* ---------- 动画脚本(帧列表) ---------- */
 typedef struct {
@@ -40,7 +40,7 @@ static const uint8_t *face_frame[PET_FACE_COUNT] = {
 static struct {
     PetFace_t face;        /* 当前被指令切换的表情(只有 NORMAL 才跑待机脚本) */
     uint8_t   idle_step;   /* 待机动画走到第几步 */
-    uint32_t  last_ms;     /* 上次换帧时刻(HAL_GetTick) */
+    uint32_t  last_ms;     /* 上次换帧时刻(SysTick_GetTick) */
 } pet;
 
 /* 画一帧: 拷进缓冲区 + 整屏刷新 */
@@ -54,7 +54,7 @@ void Pet_Init(void)
 {
     pet.face      = PET_FACE_NORMAL;
     pet.idle_step = 0;
-    pet.last_ms   = HAL_GetTick();
+    pet.last_ms   = SysTick_GetTick();
     Pet_Draw(pet_frame_open);    /* 开机先显示正常脸 */
 }
 
@@ -64,7 +64,7 @@ void Pet_SetFace(PetFace_t face)
     if (face >= PET_FACE_COUNT) face = PET_FACE_NORMAL;
     pet.face      = face;
     pet.idle_step = 0;
-    pet.last_ms   = HAL_GetTick();
+    pet.last_ms   = SysTick_GetTick();
     Pet_Draw(face_frame[face]);
 }
 
@@ -74,7 +74,7 @@ void Pet_SetFace(PetFace_t face)
  *   - 如果被指令切到了别的表情, 就一直显示那个表情(等下次指令再切回) */
 void Pet_Update(void)
 {
-    uint32_t now = HAL_GetTick();
+    uint32_t now = SysTick_GetTick();
     const PetAnimStep_t *step = &anim_idle[pet.idle_step];
 
     if ((uint32_t)(now - pet.last_ms) < step->hold_ms) {

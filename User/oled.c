@@ -1,4 +1,4 @@
-﻿/* oled.c —— SSD1306 OLED 驱动(软件 I2C 版)
+/* oled.c —— SSD1306 OLED 驱动(软件 I2C 版, 标准库)
  *
  * 原理一句话讲清楚:
  *   屏幕里有一块 1KB 的"显存"; 我们程序里也留了一块一模一样的 1KB 缓冲区。
@@ -47,15 +47,15 @@ static const uint8_t s_init_cmds[] = {
 /* ============================================================
  * 软件 I2C 底层
  * ============================================================ */
-static void I2C_SCL(uint8_t v) { HAL_GPIO_WritePin(OLED_SCL_PORT, OLED_SCL_PIN, v ? GPIO_PIN_SET : GPIO_PIN_RESET); }
-static void I2C_SDA(uint8_t v) { HAL_GPIO_WritePin(OLED_SDA_PORT, OLED_SDA_PIN, v ? GPIO_PIN_SET : GPIO_PIN_RESET); }
+static void I2C_SCL(uint8_t v) { v ? GPIO_SetBits(OLED_SCL_PORT, OLED_SCL_PIN) : GPIO_ResetBits(OLED_SCL_PORT, OLED_SCL_PIN); }
+static void I2C_SDA(uint8_t v) { v ? GPIO_SetBits(OLED_SDA_PORT, OLED_SDA_PIN) : GPIO_ResetBits(OLED_SDA_PORT, OLED_SDA_PIN); }
 
 /* 微秒延时: 用 DWT 内核计数器, 精度高, 不占用定时器 */
 static void I2C_DelayUs(uint32_t us)
 {
     uint32_t start = DWT->CYCCNT;
     uint32_t ticks = us * (SystemCoreClock / 1000000UL);
-    while ((DWT->CYCCNT - start) < ticks) { }   /* 无符号减法, 自动处理回绕 */
+    while ((uint32_t)(DWT->CYCCNT - start) < ticks) { }   /* 无符号减法, 自动处理回绕 */
 }
 
 /* I2C 起始信号: SCL 高电平时把 SDA 拉低 */
@@ -86,7 +86,7 @@ static uint8_t I2C_SendByte(uint8_t dat)
     /* 读应答: 释放 SDA(开漏输出写1=让线上拉), 拉高 SCL 后读引脚 */
     I2C_SDA(1); I2C_DelayUs(1);
     I2C_SCL(1); I2C_DelayUs(2);
-    nack = (HAL_GPIO_ReadPin(OLED_SDA_PORT, OLED_SDA_PIN) == GPIO_PIN_SET);
+    nack = (GPIO_ReadInputDataBit(OLED_SDA_PORT, OLED_SDA_PIN) == (uint8_t)Bit_SET);
     I2C_SCL(0); I2C_DelayUs(1);
     return nack;
 }
@@ -121,12 +121,11 @@ void OLED_Init(void)
     /* 1) 配置 I2C 引脚: 开漏输出 + 内部上拉。
      *    开漏输出在输出 1 时不主动拉高, 靠上拉电阻把线拉高,
      *    这样才能"读"到设备拉低应答的信号 */
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    gpio.Pin   = OLED_SCL_PIN | OLED_SDA_PIN;
-    gpio.Mode  = GPIO_MODE_OUTPUT_OD;
-    gpio.Pull  = GPIO_PULLUP;
-    gpio.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(OLED_SCL_PORT, &gpio);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    gpio.GPIO_Pin   = OLED_SCL_PIN | OLED_SDA_PIN;
+    gpio.GPIO_Mode  = GPIO_Mode_Out_OD;
+    gpio.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(OLED_SCL_PORT, &gpio);
 
     /* 2) 开 DWT 计数器, 供微秒延时使用 */
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -137,8 +136,9 @@ void OLED_Init(void)
     I2C_DelayUs(50000);
 
     /* 4) 按序列发送初始化命令 */
+    uint16_t i;
     for (i = 0; i < sizeof(s_init_cmds); i++) {
-        OLED_WriteCmd(init_cmds[i]);
+        OLED_WriteCmd(s_init_cmds[i]);
     }
 
     OLED_Clear();

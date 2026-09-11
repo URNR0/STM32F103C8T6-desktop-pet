@@ -1,17 +1,17 @@
-﻿/* uart_cmd.c —— 串口指令接收与解析(环形缓冲区 + 行解析 + 命令表)
+/* uart_cmd.c —— 串口指令接收与解析(环形缓冲区 + 行解析 + 命令表, 标准库版)
  *
  * 三个部件:
  *   1. 环形缓冲区: 中断往里塞, 主循环往外取 —— 两者互不干扰
  *   2. 行解析器:   从缓冲区取出字节, 攒到看见回车就算一条完整命令
  *   3. 命令表:     查表执行, 以后加命令只需要在表里加一行
  *
- * 注意: extern 那行要改成你自己 CubeMX 工程里的串口句柄
- *       (比如你的工程用的是 huart2, 就写 extern UART_HandleTypeDef huart2;)
+ * 注意: 本文件不再依赖 HAL, 回复通过 usart1.h 里的 USART1_SendString() 发送。
  */
-#include "main.h"
+#include "stm32f10x.h"
 #include "string.h"
 #include "uart_cmd.h"
 #include "pet.h"
+#include "usart1.h"          /* 提供 USART1_SendString */
 
 /* ============ 1. 环形缓冲区 ============ */
 #define RX_RING_SIZE  128          /* 缓冲大小(字节), 够用就行 */
@@ -43,12 +43,11 @@ static uint8_t  cmd_buf[CMD_BUF_SIZE];
 static uint8_t  cmd_len = 0;
 
 /* ============ 3. 命令表(加新命令在这加一行) ============ */
-extern UART_HandleTypeDef huart1;      /* CubeMX 生成的串口句柄, 在 usart.c 里定义 */
 
-/* 回一句给上位机/手机, 方便调试。用阻塞发送, 简单可靠 */
+/* 回一句给上位机/手机, 方便调试 */
 static void Reply(const char *s)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t *)s, (uint16_t)strlen(s), 100);
+    USART1_SendString(s);
 }
 
 static void Cmd_Normal(void) { Pet_SetFace(PET_FACE_NORMAL); Reply("OK:NORMAL\r\n"); }

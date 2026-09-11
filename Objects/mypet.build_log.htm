@@ -1,0 +1,78 @@
+<html>
+<body>
+<pre>
+<h1>�Vision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ��Vision V5.36.0.0
+Copyright (C) 2021 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: yaohong gong, 4013, LIC=Z6FS4-ZBENG-W4ISU-58932-YXSRG-4KU7E
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Community  Version: 5.36.0.0
+Toolchain Path:  D:\keil111\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.16
+Assembler:       Armasm.exe V6.16
+Linker/Locator:  ArmLink.exe V6.16
+Library Manager: ArmAr.exe V6.16
+Hex Converter:   FromElf.exe V6.16
+CPU DLL:         SARMCM3.DLL V5.36.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      UL2CM3.DLL V1.164.0.0
+Dialog DLL:      TCM.DLL V1.53.0.0
+ 
+<h2>Project:</h2>
+C:\Users\31923\Desktop\STM32F103C8T6-desktop-pet\mypet.uvprojx
+Project File Date:  09/11/2026
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.16', folder: 'D:\keil111\ARM\ARMCLANG\Bin'
+Build target 'Target 1'
+User/pet.c(12): warning: In file included from...
+./User/pet.h(28): warning: no newline at end of file [-Wnewline-eof]
+#endif /* __PET_H */
+                    ^
+User/pet.c(13): warning: In file included from...
+./User/oled.h(14): error: 'main.h' file not found
+#include "main.h"        /* 让 HAL 库的东西可用(按你工程实际路径调整) */
+         ^~~~~~~~
+1 warning and 1 error generated.
+compiling pet.c...
+User/uart_cmd.c(11): error: 'main.h' file not found
+#include "main.h"
+         ^~~~~~~~
+1 error generated.
+compiling uart_cmd.c...
+User/oled.c(13): warning: In file included from...
+./User/oled.h(14): error: 'main.h' file not found
+#include "main.h"        /* 让 HAL 库的东西可用(按你工程实际路径调整) */
+         ^~~~~~~~
+1 error generated.
+compiling oled.c...
+User/main.c(1): warning: In file included from...
+./CMSIS\stm32f10x.h(481): warning: In file included from...
+./CMSIS/core_cm3.h(1720): warning: function 'NVIC_SystemReset' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
+{
+^
+User/main.c(2): error: 'main.h' file not found
+#include "main.h"        /* CubeMX <C9><FA><B3><C9> */
+         ^~~~~~~~
+1 warning and 1 error generated.
+compiling main.c...
+".\Objects\mypet.axf" - 4 Error(s), 2 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32F1xx_DFP.2.4.1.pack
+                Keil.STM32F1xx_DFP.2.4.1
+                STMicroelectronics STM32F1 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  D:\keil111\Keil\STM32F1xx_DFP\2.4.1\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+Target not created.
+Build Time Elapsed:  00:00:00
+</pre>
+</body>
+</html>

@@ -2,11 +2,7 @@
  *
  * 实现原理:
  *   启动 SysTick 每 1ms 中断一次, 中断里 tick 加 1。
- *   这样就有了一个全局的毫秒计数, 和 HAL 库的 HAL_GetTick() 一样好用。
- *
- * 注意:
- *   不要和 stm32f10x_it.c 里自带的 SysTick_Handler 同时写两份;
- *   如果工程里已有 SysTick 中断, 可以把 tick++ 那行合进去。
+ *   这样就有了一个全局的毫秒计数
  */
 #include "delay.h"
 

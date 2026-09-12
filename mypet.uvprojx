@@ -408,6 +408,16 @@
               <FileType>1</FileType>
               <FilePath>.\User\uart_cmd.c</FilePath>
             </File>
+            <File>
+              <FileName>usart1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\usart1.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\delay.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -442,6 +452,31 @@
               <FileName>stm32f10x_i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\FWLIB\src\stm32f10x_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FWLIB\src\stm32f10x_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>misc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FWLIB\src\misc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FWLIB\src\stm32f10x_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FWLIB\src\stm32f10x_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FWLIB\src\stm32f10x_dma.c</FilePath>
             </File>
           </Files>
         </Group>

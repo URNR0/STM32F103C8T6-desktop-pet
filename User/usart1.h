@@ -1,7 +1,7 @@
 /* usart1.h —— 标准库串口1初始化 + 中断接收
  *
  * 默认使用 PA9(TX)、PA10(RX), 波特率 115200。
- * 收到的每个字节都会通过 UartCmd_OnByte() 交给指令框架处理。
+ * 通过 UartCmd_OnByte() 交给指令框架处理。
  */
 #ifndef __USART1_H
 #define __USART1_H

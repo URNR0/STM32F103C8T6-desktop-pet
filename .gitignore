@@ -1,0 +1,31 @@
+# ===== Keil MDK-ARM 编译输出目录 =====
+Objects/
+Listings/
+DebugConfig/
+
+# ===== 编译中间产物 / 输出文件 =====
+*.o
+*.d
+*.crf
+*.axf
+*.dep
+*.lnp
+*.map
+*.lst
+*.elf
+*.hex
+*.bin
+*.iex
+
+# ===== 其他构建/调试临时文件 =====
+*.build_log.htm
+*.bak
+JLinkLog.txt
+*.scvd
+
+# ===== Keil 用户相关(窗口布局等, 机器/用户专属) =====
+*.uvguix.*
+
+# ===== 系统临时文件 =====
+Thumbs.db
+.DS_Store

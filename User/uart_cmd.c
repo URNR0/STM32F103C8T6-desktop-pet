@@ -53,11 +53,13 @@ static void Reply(const char *s)
 static void Cmd_Normal(void) { Pet_SetFace(PET_FACE_NORMAL); Reply("OK:NORMAL\r\n"); }
 static void Cmd_Blink(void)  { Pet_SetFace(PET_FACE_BLINK);  Reply("OK:BLINK\r\n"); }
 static void Cmd_Happy(void)  { Pet_SetFace(PET_FACE_HAPPY);  Reply("OK:HAPPY\r\n"); }
+static void Cmd_Sleep(void)  { Pet_SetFace(PET_FACE_SLEEP);  Reply("OK:SLEEP\r\n"); }
+static void Cmd_Sad(void)    { Pet_SetFace(PET_FACE_SAD);    Reply("OK:SAD\r\n"); }
 static void Cmd_Ping(void)   { Reply("PONG\r\n"); }
 
 static void Cmd_Help(void)
 {
-    Reply("CMDS: NORMAL BLINK HAPPY PING HELP\r\n");
+    Reply("CMDS: NORMAL BLINK HAPPY SLEEP SAD PING HELP\r\n");
 }
 
 /* 命令表: 字符串匹配(不区分大小写)。以后要带参数, 在这里面用 sscanf 或
@@ -71,6 +73,8 @@ static const CmdEntry_t cmd_table[] = {
     { "NORMAL", Cmd_Normal },
     { "BLINK",  Cmd_Blink },
     { "HAPPY",  Cmd_Happy },
+    { "SLEEP",  Cmd_Sleep },
+    { "SAD",    Cmd_Sad },
     { "PING",   Cmd_Ping },
     { "HELP",   Cmd_Help },
 };

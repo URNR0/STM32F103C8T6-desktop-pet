@@ -13,16 +13,19 @@
 
 #include <stdint.h>
 
-/* 宠物表情(以后加新表情, 在枚举里加一个, 再在 pet.c 里补对应的帧) */
+/* 宠物表情(状态机里的情绪状态; BLINK 是 NORMAL 下的瞬时动作) */
 typedef enum {
-    PET_FACE_NORMAL = 0,   /* 正常(睁眼) */
-    PET_FACE_BLINK,        /* 眨眼 */
+    PET_FACE_NORMAL = 0,   /* 醒着(睁眼, 会眨眼) */
+    PET_FACE_BLINK,        /* 眨眼(瞬时动作, 不是持久状态) */
     PET_FACE_HAPPY,        /* 开心 */
-    PET_FACE_COUNT         /* 自动计数, 用来做数组长度, 别删 */
+    PET_FACE_SLEEP,        /* 打盹(闭眼 + Zzz) */
+    PET_FACE_SAD,          /* 委屈(垂眼角 + 倒U嘴) */
+    PET_FACE_COUNT         /* 自动计数, 别删 */
 } PetFace_t;
 
 void Pet_Init(void);                    /* 开机调用一次: 显示第一帧 */
 void Pet_Update(void);                  /* 主循环反复调用: 按时间换帧 */
 void Pet_SetFace(PetFace_t face);       /* 外部指令切换表情(串口/按键调用) */
+PetFace_t Pet_GetFace(void);            /* 查询当前状态(按键切换睡/醒用) */
 
 #endif /* __PET_H */

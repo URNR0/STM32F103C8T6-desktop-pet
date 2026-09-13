@@ -53,6 +53,10 @@ def is_eye(px, py, mode, cx):
         return in_ellipse(px, py, cx, cy, 4.5, 6.0)
     if mode == "blink":       # 闭眼: 一条横线
         return in_rect(px, py, cx - 5.0, cy - 1.3, cx + 5.0, cy + 1.3)
+    if mode == "sleep":       # 打盹: 闭眼横线(略粗, 更放松)
+        return in_rect(px, py, cx - 5.5, cy - 1.8, cx + 5.5, cy + 1.8)
+    if mode == "sad":         # 委屈: 无精打采的短横眼
+        return in_rect(px, py, cx - 3.5, cy - 1.0, cx + 3.5, cy + 1.2)
     if mode == "happy":       # 开心: ^ ^ 两个小折线
         return (dist_seg(px, py, cx - 5, cy + 3, cx, cy - 4) <= 1.7 or
                 dist_seg(px, py, cx, cy - 4, cx + 5, cy + 3) <= 1.7)
@@ -63,8 +67,25 @@ def is_mouth(px, py, mode):
     d = ((px - mx) ** 2 + (py - my) ** 2) ** 0.5
     if mode == "happy":        # 张嘴笑: 下半个实心圆
         return py >= my and in_ellipse(px, py, mx, my + 2.0, r, r - 1.0)
+    if mode == "sleep":        # 打盹: 平静小嘴(一条短横线)
+        return in_rect(px, py, mx - 3.0, my - 0.8, mx + 3.0, my + 0.8)
+    if mode == "sad":          # 委屈: 嘴角下垂(上半圆弧, 倒U)
+        return (abs(d - r) <= 1.9) and (py <= my)
     # 普通/眨眼: 微笑弧线(下半圆弧, 中间低两边高)
     return (abs(d - r) <= 1.9) and (py >= my)
+
+def is_zzz(px, py):
+    """打盹符号: 头顶画三个 Z, 从大到小往右上排"""
+    for cx, cy, s in ((104, 21, 5.0), (116, 13, 3.5), (124, 6, 2.5)):
+        left, right = cx - s, cx + s
+        top, bot = cy - s, cy + s
+        if in_rect(px, py, left, top - 0.9, right, top + 0.9):   # 顶横
+            return True
+        if in_rect(px, py, left, bot - 0.9, right, bot + 0.9):   # 底横
+            return True
+        if dist_seg(px, py, right, top, left, bot) <= 1.0:       # 斜线
+            return True
+    return False
 
 def render_frame(eye_mode):
     W, H, S = 128, 64, 4
@@ -76,6 +97,9 @@ def render_frame(eye_mode):
                 for sx in range(S):
                     px = x + (sx + 0.5) / S
                     py = y + (sy + 0.5) / S
+                    if eye_mode == "sleep" and is_zzz(px, py):
+                        hit += 1          # 打盹头顶的 Zzz 独立亮起
+                        continue
                     if is_face(px, py):
                         # 眼睛/嘴巴是黑(挖空)
                         if not (is_eye(px, py, eye_mode, 50) or
@@ -165,6 +189,8 @@ frames = {
     "pet_frame_open":  render_frame("open"),
     "pet_frame_blink": render_frame("blink"),
     "pet_frame_happy": render_frame("happy"),
+    "pet_frame_sleep": render_frame("sleep"),
+    "pet_frame_sad":   render_frame("sad"),
 }
 
 # 预览(把 128x64 缩成 64 行宽的字符画, 目测脸形是否正确)

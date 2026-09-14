@@ -56,10 +56,23 @@ static void Cmd_Happy(void)  { Pet_SetFace(PET_FACE_HAPPY);  Reply("OK:HAPPY\r\n
 static void Cmd_Sleep(void)  { Pet_SetFace(PET_FACE_SLEEP);  Reply("OK:SLEEP\r\n"); }
 static void Cmd_Sad(void)    { Pet_SetFace(PET_FACE_SAD);    Reply("OK:SAD\r\n"); }
 static void Cmd_Ping(void)   { Reply("PONG\r\n"); }
+static void Cmd_Ver(void)    { Reply("VER: desktop-pet v" PET_FW_VERSION "\r\n"); }
 
 static void Cmd_Help(void)
 {
-    Reply("CMDS: NORMAL BLINK HAPPY SLEEP SAD PING HELP\r\n");
+    Reply("CMDS: NORMAL BLINK HAPPY SLEEP SAD PING VER HELP\r\n");
+}
+
+/* 宠物状态变化时被 pet.c 回调: 把新状态转成文字推到手机(蓝牙) */
+static void Pet_StateNotify(PetFace_t face)
+{
+    switch (face) {
+    case PET_FACE_NORMAL: Reply("STATE:NORMAL\r\n"); break;
+    case PET_FACE_SLEEP:  Reply("STATE:SLEEP\r\n");  break;
+    case PET_FACE_HAPPY:  Reply("STATE:HAPPY\r\n");  break;
+    case PET_FACE_SAD:    Reply("STATE:SAD\r\n");    break;
+    default: break;
+    }
 }
 
 /* 命令表: 字符串匹配(不区分大小写)。以后要带参数, 在这里面用 sscanf 或
@@ -76,6 +89,7 @@ static const CmdEntry_t cmd_table[] = {
     { "SLEEP",  Cmd_Sleep },
     { "SAD",    Cmd_Sad },
     { "PING",   Cmd_Ping },
+    { "VER",    Cmd_Ver },
     { "HELP",   Cmd_Help },
 };
 #define CMD_TABLE_LEN  (sizeof(cmd_table) / sizeof(cmd_table[0]))
@@ -126,6 +140,12 @@ void UartCmd_Poll(void)
             cmd_len = 0;                   /* 超长: 整条作废重来, 防垃圾数据 */
         }
     }
+}
+
+/* 初始化: 注册宠物状态上报回调, main 里串口初始化后调用一次 */
+void UartCmd_Init(void)
+{
+    Pet_SetNotify(Pet_StateNotify);
 }
 
 /* 测试用: 手动喂一条命令, 等价于串口发来 "xxx\n" */

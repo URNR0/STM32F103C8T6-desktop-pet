@@ -34,6 +34,9 @@ static struct {
     uint32_t   last_interact_ms;   /* 最后一次收到指令的时刻(判空闲用) */
 } pet;
 
+/* 状态变化通知回调(蓝牙上报用), 由 UartCmd_Init 注册 */
+static PetNotify_t notify_cb = 0;
+
 /* 画一帧: 拷进缓冲区 + 整屏刷新 */
 static void Pet_Draw(const uint8_t *frame)
 {
@@ -44,6 +47,8 @@ static void Pet_Draw(const uint8_t *frame)
 /* 切换到某个状态, 立即画出对应表情 */
 static void Pet_EnterState(PetFace_t face)
 {
+    PetFace_t old = pet.state;
+
     pet.state       = face;
     pet.blink_phase = 0;
     pet.last_ms     = SysTick_GetTick();
@@ -55,6 +60,11 @@ static void Pet_EnterState(PetFace_t face)
     case PET_FACE_SLEEP:  Pet_Draw(pet_frame_sleep); break;
     case PET_FACE_SAD:    Pet_Draw(pet_frame_sad);   break;
     default: break;
+    }
+
+    /* 状态真的变了才通知外界(蓝牙上报), 避免重复刷屏 */
+    if (notify_cb && old != face) {
+        notify_cb(face);
     }
 }
 
@@ -71,6 +81,12 @@ void Pet_Init(void)
 PetFace_t Pet_GetFace(void)
 {
     return pet.state;
+}
+
+/* 注册状态变化通知回调(蓝牙上报用), 传 NULL 取消 */
+void Pet_SetNotify(PetNotify_t fn)
+{
+    notify_cb = fn;
 }
 
 /* 指令(串口/按键)切换表情: 立即生效, 并重置"空闲计时" */

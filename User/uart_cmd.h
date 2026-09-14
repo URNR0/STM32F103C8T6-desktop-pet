@@ -23,11 +23,17 @@
 
 #include <stdint.h>
 
+/* 固件版本号(VER 命令和开机握手都会报它) */
+#define PET_FW_VERSION "1.0"
+
 /* 串口中断回调里调用: 收到一个字节就传进来(内部会排队) */
 void UartCmd_OnByte(uint8_t b);
 
 /* 主循环里反复调用: 攒够一整行就执行对应的命令 */
 void UartCmd_Poll(void);
+
+/* 初始化(注册宠物状态上报回调), 在 main 里串口初始化后调用一次 */
+void UartCmd_Init(void);
 
 /* 给测试用: 直接模拟收到一条命令(等价于串口发来 "xxx\r\n") */
 void UartCmd_Send(const char *line);

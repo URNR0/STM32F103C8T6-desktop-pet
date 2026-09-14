@@ -28,4 +28,8 @@ void Pet_Update(void);                  /* 主循环反复调用: 按时间换�
 void Pet_SetFace(PetFace_t face);       /* 外部指令切换表情(串口/按键调用) */
 PetFace_t Pet_GetFace(void);            /* 查询当前状态(按键切换睡/醒用) */
 
+/* 状态变化通知回调(蓝牙上报用): 宠物状态真正切换时被调用, 参数是新状态 */
+typedef void (*PetNotify_t)(PetFace_t face);
+void Pet_SetNotify(PetNotify_t fn);     /* 注册回调, 传 NULL 取消 */
+
 #endif /* __PET_H */

@@ -9,8 +9,10 @@
  */
 #include "stm32f10x.h"
 #include "string.h"
+#include "stdio.h"           /* sprintf 格式化状态串 */
 #include "uart_cmd.h"
 #include "pet.h"
+#include "mood.h"            /* 情绪模型(喂食/互动/状态查询) */
 #include "usart1.h"          /* 提供 USART1_SendString */
 
 /* ============ 1. 环形缓冲区 ============ */
@@ -58,9 +60,35 @@ static void Cmd_Sad(void)    { Pet_SetFace(PET_FACE_SAD);    Reply("OK:SAD\r\n")
 static void Cmd_Ping(void)   { Reply("PONG\r\n"); }
 static void Cmd_Ver(void)    { Reply("VER: desktop-pet v" PET_FW_VERSION "\r\n"); }
 
+static void Cmd_Feed(void)
+{
+    char buf[48];
+    Mood_Feed();
+    sprintf(buf, "OK:FEED mood=%u hunger=%u bond=%u\r\n",
+            (unsigned)Mood_GetMood(), (unsigned)Mood_GetHunger(), (unsigned)Mood_GetBond());
+    Reply(buf);
+}
+
+static void Cmd_Play(void)
+{
+    char buf[48];
+    Mood_Play();
+    sprintf(buf, "OK:PLAY mood=%u hunger=%u bond=%u\r\n",
+            (unsigned)Mood_GetMood(), (unsigned)Mood_GetHunger(), (unsigned)Mood_GetBond());
+    Reply(buf);
+}
+
+static void Cmd_Stat(void)
+{
+    char buf[48];
+    sprintf(buf, "STAT mood=%u hunger=%u bond=%u\r\n",
+            (unsigned)Mood_GetMood(), (unsigned)Mood_GetHunger(), (unsigned)Mood_GetBond());
+    Reply(buf);
+}
+
 static void Cmd_Help(void)
 {
-    Reply("CMDS: NORMAL BLINK HAPPY SLEEP SAD PING VER HELP\r\n");
+    Reply("CMDS: NORMAL BLINK HAPPY SLEEP SAD PING VER FEED PLAY STAT HELP\r\n");
 }
 
 /* 宠物状态变化时被 pet.c 回调: 把新状态转成文字推到手机(蓝牙) */
@@ -90,6 +118,9 @@ static const CmdEntry_t cmd_table[] = {
     { "SAD",    Cmd_Sad },
     { "PING",   Cmd_Ping },
     { "VER",    Cmd_Ver },
+    { "FEED",   Cmd_Feed },
+    { "PLAY",   Cmd_Play },
+    { "STAT",   Cmd_Stat },
     { "HELP",   Cmd_Help },
 };
 #define CMD_TABLE_LEN  (sizeof(cmd_table) / sizeof(cmd_table[0]))

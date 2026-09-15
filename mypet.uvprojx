@@ -423,6 +423,16 @@
               <FileType>1</FileType>
               <FilePath>.\User\button.c</FilePath>
             </File>
+            <File>
+              <FileName>mood.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\mood.c</FilePath>
+            </File>
+            <File>
+              <FileName>nvstore.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\nvstore.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -482,6 +492,11 @@
               <FileName>stm32f10x_dma.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\FWLIB\src\stm32f10x_dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FWLIB\src\stm32f10x_flash.c</FilePath>
             </File>
           </Files>
         </Group>

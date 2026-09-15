@@ -22,6 +22,7 @@ void    Mood_Init(void);        /* 开机调用一次: 初始化情绪值 */
 void    Mood_Tick(void);        /* 主循环反复调用: 每秒更新情绪 + 触发表情 */
 void    Mood_Feed(void);        /* 喂食: 降饥饿、提心情、加亲密度, 并开心 */
 void    Mood_Play(void);        /* 摸头/互动: 提心情、加亲密度, 并开心 */
+void    Mood_DrawBars(void);   /* 主循环反复调用: 在表情下方画心情/饥饿进度条 */
 
 uint8_t Mood_GetMood(void);     /* 心情 0~100 */
 uint8_t Mood_GetHunger(void);   /* 饥饿 0~100 */

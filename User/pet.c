@@ -37,11 +37,10 @@ static struct {
 /* 状态变化通知回调(蓝牙上报用), 由 UartCmd_Init 注册 */
 static PetNotify_t notify_cb = 0;
 
-/* 画一帧: 拷进缓冲区 + 整屏刷新 */
+/* 画一帧: 拷进缓冲区(不立即刷新, 由 main 统一刷新以避免进度条闪烁) */
 static void Pet_Draw(const uint8_t *frame)
 {
     OLED_ShowFrame(frame);
-    OLED_Refresh();
 }
 
 /* 切换到某个状态, 立即画出对应表情 */
